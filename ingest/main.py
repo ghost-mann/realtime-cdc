@@ -17,6 +17,9 @@ db_port = os.getenv('DB_PORT')
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+base_url = 'https://api.binance.com'
+
+
 try:
     engine = create_engine(f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}")
     with engine.connect() as conn:
