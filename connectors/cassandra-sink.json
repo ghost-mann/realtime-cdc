@@ -1,0 +1,21 @@
+{
+  "name": "cassandra-sink",
+  "config": {
+    "connector.class": "com.datastax.oss.kafka.sink.CassandraSinkConnector",
+    "contactPoints": "cassandra",
+    "delete.enabled": "true",
+    "tasks.max": "1",
+    "cassandra.port": 9042,
+    "cassandra.keyspace": "trades_keyspace",
+    "loadBalancing.localDc": "datacenter1",
+
+    "topics": "trades.public.recent_trades",
+
+    "topic.trades.public.recent_trades.trades_keyspace.recent_trades.mapping": "id=key.id,price=value.after.price,quote_qty=value.after.quote_qty,qty=value.after.qty,symbol=value.after.symbol",
+
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "false",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false"
+  }
+}
