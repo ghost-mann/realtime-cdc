@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-
 db_name = os.getenv('DB_NAME')
 db_user = os.getenv('DB_UNAME')
 db_password = os.getenv('DB_PASSWORD')
@@ -20,7 +19,6 @@ logger = logging.getLogger(__name__)
 base_url = 'https://api.binance.com'
 top_pairs = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT"]
 
-
 try:
     engine = create_engine(f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}")
     with engine.connect() as conn:
@@ -30,10 +28,30 @@ except SQLAlchemyError as e:
     exit()
 
 
+def get_latest_prices(symbol):
+   
+    response = requests.get(f"{base_url}/api/v3/ticker/price", params={"symbol": symbol})
+
+    latest_price_data = response.json()
+    
+    logger.debug(latest_price_data)
+        
+    with engine.connect() as conn:
+        conn.execute(
+            sa.text("""
+        INSERT INTO latest_prices (symbol, price)
+        VALUES (:symbol, :price)
+    """
+            ),
+            # Pass dictionary directly to the insert statement
+            latest_price_data,
+        )
+        conn.commit()
+
 def get_recent_trades(symbol, limit=20):
     response = requests.get(f"{base_url}/api/v3/trades", params={"symbol": symbol, "limit": limit})
-
     recent_trades = response.json()
+    
     for recent_trade in recent_trades:
         recent_trade.update({"symbol": symbol})
         logger.debug(recent_trade)
@@ -47,7 +65,7 @@ def get_recent_trades(symbol, limit=20):
         )
         conn.commit()
 
-
 if __name__ == "__main__":
     for symbol in top_pairs:
         get_recent_trades(symbol)
+        get_latest_prices(symbol)
