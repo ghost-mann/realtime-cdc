@@ -18,6 +18,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 base_url = 'https://api.binance.com'
+top_pairs = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT"]
 
 
 try:
@@ -30,7 +31,7 @@ except SQLAlchemyError as e:
 
 
 def get_recent_trades(symbol, limit=20):
-    response = requests.get("https://api.binance.com/api/v3/trades", params={"symbol": symbol, "limit": limit})
+    response = requests.get(f"{base_url}/api/v3/trades", params={"symbol": symbol, "limit": limit})
 
     recent_trades = response.json()
     for recent_trade in recent_trades:
@@ -48,4 +49,5 @@ def get_recent_trades(symbol, limit=20):
 
 
 if __name__ == "__main__":
-    get_recent_trades("BTCUSDT")
+    for symbol in top_pairs:
+        get_recent_trades(symbol)
