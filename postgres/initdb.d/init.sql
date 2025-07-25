@@ -10,4 +10,13 @@ CREATE TABLE public.recent_trades (
       modified_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE TABLE public.latest_prices (
+    id SERIAL PRIMARY KEY,
+    symbol VARCHAR(20) NOT NULL,
+    price NUMERIC(20, 8) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
 ALTER TABLE public.recent_trades REPLICA IDENTITY FULL; -- Recommended for Debezium to provide the "before" state of a row on UPDATE and DELETE events.
