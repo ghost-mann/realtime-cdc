@@ -19,3 +19,10 @@ CREATE TABLE IF NOT EXISTS trades_keyspace.recent_trades (
     created_at TIMESTAMP,
     modified_at TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS trades_keyspace.latest_prices (
+    symbol TEXT PRIMARY KEY,
+    price TEXT,
+    updated_at TIMESTAMP
+);
+
