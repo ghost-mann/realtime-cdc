@@ -8,11 +8,9 @@
     "cassandra.port": 9042,
     "cassandra.keyspace": "trades_keyspace",
     "loadBalancing.localDc": "datacenter1",
-
-    "topics": "trades.public.recent_trades",
-
+    "topics": "trades.public.recent_trades,trades.public.latest_prices",
     "topic.trades.public.recent_trades.trades_keyspace.recent_trades.mapping": "id=key.id,price=value.after.price,quote_qty=value.after.quote_qty,qty=value.after.qty,symbol=value.after.symbol",
-
+    "topic.trades.public.latest_prices.trades_keyspace.latest_prices.mapping": "symbol=key.symbol, price=value.after.price",
     "key.converter": "org.apache.kafka.connect.json.JsonConverter",
     "key.converter.schemas.enable": "false",
     "value.converter": "org.apache.kafka.connect.json.JsonConverter",
