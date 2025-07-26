@@ -10,14 +10,11 @@
     "database.server.name": "tradeserver",
     "decimal.handling.mode": "double",
     "plugin.name": "pgoutput",
-
-    "table.include.list": "public.recent_trades",
+    "table.include.list": "public.recent_trades,public.latest_prices",
     "topic.prefix": "trades",
-
     "transforms": "flatten",
     "transforms.flatten.type": "org.apache.kafka.connect.transforms.Flatten$Value",
     "transforms.flatten.delimiter": ".",
-
     "key.converter": "org.apache.kafka.connect.json.JsonConverter",
     "key.converter.schemas.enable": "false",
     "value.converter": "org.apache.kafka.connect.json.JsonConverter",
