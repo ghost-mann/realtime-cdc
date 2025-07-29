@@ -3,7 +3,7 @@
   "config": {
     "connector.class": "com.datastax.oss.kafka.sink.CassandraSinkConnector",
     "tasks.max": "1",
-    "topics": "trades.public.latest_prices,trades.public.recent_trades,trades.public.order_book,trades.public.ticker_stats",
+    "topics": "trades.public.latest_prices,trades.public.recent_trades,trades.public.order_book,trades.public.ticker_stats,tardes.public.klines",
     "contactPoints": "cassandra",
     "loadBalancing.localDc": "datacenter1",
     "cassandra.port": 9042,
@@ -15,6 +15,7 @@
     "topic.trades.public.latest_prices.trades_keyspace.latest_prices.mapping": "symbol=value.symbol, price=value.price, updated_at=value.updated_at",
     "topic.trades.public.recent_trades.trades_keyspace.recent_trades.mapping": "id=value.id, symbol=value.symbol, price=value.price, qty=value.qty, quote_qty=value.quote_qty, time=value.time, is_buyer_maker=value.is_buyer_maker, is_best_match=value.is_best_match",
     "topic.trades.public.order_book.trades_keyspace.order_book.mapping": "id=value.id, symbol=value.symbol, last_update_id=value.last_update_id, side=value.side, price=value.price, quantity=value.quantity",
-    "topic.trades.public.ticker_stats.trades_keyspace.ticker_stats.mapping": "symbol=value.symbol, price_change=value.price_change, price_change_percent=value.price_change_percent, weighted_avg_price=value.weighted_avg_price, prev_close_price=value.prev_close_price, last_price=value.last_price, last_qty=value.last_qty, bid_price=value.bid_price, bid_qty=value.bid_qty, ask_price=value.ask_price, ask_qty=value.ask_qty, open_price=value.open_price, high_price=value.high_price, low_price=value.low_price, volume=value.volume, quote_volume=value.quote_volume, open_time=value.open_time, close_time=value.close_time, first_id=value.first_id, last_id=value.last_id, trade_count=value.trade_count, updated_at=value.updated_at"
+    "topic.trades.public.ticker_stats.trades_keyspace.ticker_stats.mapping": "symbol=value.symbol, price_change=value.price_change, price_change_percent=value.price_change_percent, weighted_avg_price=value.weighted_avg_price, prev_close_price=value.prev_close_price, last_price=value.last_price, last_qty=value.last_qty, bid_price=value.bid_price, bid_qty=value.bid_qty, ask_price=value.ask_price, ask_qty=value.ask_qty, open_price=value.open_price, high_price=value.high_price, low_price=value.low_price, volume=value.volume, quote_volume=value.quote_volume, open_time=value.open_time, close_time=value.close_time, first_id=value.first_id, last_id=value.last_id, trade_count=value.trade_count, updated_at=value.updated_at",
+    "topic.trades.public.klines.trades_keyspace.klines.mapping": "symbol=value.symbol, open_time=value.open_time, open=value.open, high=value.high, low=value.low, close=value.close, volume=value.volume, close_time=value.close_time, quote_asset_volume=value.quote_asset_volume, num_trades=value.num_trades, taker_buy_base_volume=value.taker_buy_base_volume, taker_buy_quote_volume=value.taker_buy_quote_volume, ingested_at=value.ingested_at"
   }
 }
