@@ -26,3 +26,12 @@ CREATE TABLE IF NOT EXISTS trades_keyspace.latest_prices (
     updated_at TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS trades_keyspace.order_book (
+    id BIGINT PRIMARY KEY,
+    symbol TEXT,
+    last_update_id BIGINT,
+    side TEXT, -- 'bid' or 'ask'
+    price DECIMAL,
+    quantity DECIMAL
+);
+
