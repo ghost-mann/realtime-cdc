@@ -12,7 +12,8 @@
     "key.converter.schemas.enable": "false",
     "value.converter": "org.apache.kafka.connect.json.JsonConverter",
     "value.converter.schemas.enable": "false",
-    "topic.trades.public.latest_prices.trades_keyspace.latest_prices.mapping": "symbol=value.symbol, price=value.price",
+
+    "topic.trades.public.latest_prices.trades_keyspace.latest_prices.mapping": "symbol=value.symbol, price=value.price, updated_at=value.updated_at",
     "topic.trades.public.recent_trades.trades_keyspace.recent_trades.mapping": "id=value.id, symbol=value.symbol, price=value.price, qty=value.qty, quote_qty=value.quote_qty, time=value.time, is_buyer_maker=value.is_buyer_maker, is_best_match=value.is_best_match",
     "topic.trades.public.order_book.trades_keyspace.order_book.mapping": "id=value.id, symbol=value.symbol, last_update_id=value.last_update_id, side=value.side, price=value.price, quantity=value.quantity"
   }
