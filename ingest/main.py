@@ -47,21 +47,39 @@ def get_latest_prices(symbol):
         conn.commit()
 
 def get_recent_trades(symbol, limit=20):
-    response = requests.get(f"{base_url}/api/v3/trades", params={"symbol": symbol, "limit": limit})
-    recent_trades = response.json()
-    
-    for recent_trade in recent_trades:
-        recent_trade.update({"symbol": symbol})
-        logger.debug(recent_trade)
 
-    with engine.connect() as conn:
-        conn.execute(
-            sa.text(
-                "INSERT INTO public.recent_trades (price, quote_qty, qty, is_buyer_maker, is_best_match, symbol) VALUES (:price, :quoteQty,  :qty, :isBuyerMaker, :isBestMatch, :symbol)"
-            ),
-            recent_trades,
-        )
-        conn.commit()
+    try:
+        response = requests.get(f"{base_url}/api/v3/trades", params={"symbol": symbol, "limit": limit})
+        response.raise_for_status()
+        recent_trades = response.json()
+
+        if not recent_trades:
+            logger.warning(f"No recent trades found for {symbol}")
+            return
+        
+        # Add the symbol to each trade dictionary
+        for trade in recent_trades:
+            trade.update({"symbol": symbol})
+
+        logger.debug(f"Inserting {len(recent_trades)} trades for {symbol}")
+        with engine.connect() as conn:
+            conn.execute(
+                sa.text(
+                    """
+                    INSERT INTO public.recent_trades (id, price, qty, quote_qty, time, is_buyer_maker, is_best_match, symbol) 
+                    VALUES (:id, :price, :qty, :quoteQty, to_timestamp(:time / 1000.0), :isBuyerMaker, :isBestMatch, :symbol)
+                    ON CONFLICT (id) DO NOTHING;
+                    """
+                ),
+                recent_trades,
+            )
+            conn.commit()
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to fetch recent trades for {symbol}", exc_info=e)
+    except SQLAlchemyError as e:
+        logger.error(f"Database error inserting recent trades for {symbol}", exc_info=e)
+
 
 def get_orderbook(symbol, limit=20):
     

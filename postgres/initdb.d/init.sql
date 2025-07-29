@@ -1,13 +1,12 @@
-CREATE TABLE public.recent_trades (
-      id SERIAL PRIMARY KEY,
-      price VARCHAR(255) NOT NULL,
-      qty VARCHAR(255) NOT NULL,
-      quote_qty VARCHAR(255) NOT NULL,
-      is_buyer_maker BOOLEAN NOT NULL,
-      is_best_match BOOLEAN NOT NULL,
-      symbol VARCHAR(255) NOT NULL,
-      created_at TIMESTAMPTZ DEFAULT NOW(),
-      modified_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE IF NOT EXISTS public.recent_trades (
+    id BIGINT PRIMARY KEY, -- The unique trade ID from Binance
+    symbol VARCHAR(20) NOT NULL,
+    price NUMERIC NOT NULL,
+    qty NUMERIC NOT NULL,
+    quote_qty NUMERIC NOT NULL,
+    time TIMESTAMPTZ NOT NULL, -- The time of the trade
+    is_buyer_maker BOOLEAN NOT NULL,
+    is_best_match BOOLEAN NOT NULL
 );
 
 CREATE TABLE public.latest_prices (
