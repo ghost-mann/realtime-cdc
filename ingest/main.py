@@ -31,9 +31,7 @@ except SQLAlchemyError as e:
 def get_latest_prices(symbol):
    
     response = requests.get(f"{base_url}/api/v3/ticker/price", params={"symbol": symbol})
-
     latest_price_data = response.json()
-    
     logger.debug(latest_price_data)
         
     with engine.connect() as conn:
@@ -65,7 +63,66 @@ def get_recent_trades(symbol, limit=20):
         )
         conn.commit()
 
+def get_orderbook(symbol, limit=20):
+    """
+    Fetches the order book for a symbol and inserts the bids and asks into the database.
+    
+    Assumes a table named 'order_book' exists.
+    """
+    url = f'{base_url}/api/v3/depth'
+    try:
+        response = requests.get(url, params={'symbol': symbol, 'limit': limit})
+       
+        response.raise_for_status()
+        order_data = response.json()
+        
+        last_update_id = order_data['lastUpdateId']
+        orders_to_insert = []
+
+        
+        for price, quantity in order_data['bids']:
+            orders_to_insert.append({
+                'symbol': symbol,
+                'last_update_id': last_update_id,
+                'side': 'bid',
+                'price': price,
+                'quantity': quantity
+            })
+
+        
+        for price, quantity in order_data['asks']:
+            orders_to_insert.append({
+                'symbol': symbol,
+                'last_update_id': last_update_id,
+                'side': 'ask',
+                'price': price,
+                'quantity': quantity
+            })
+
+        if not orders_to_insert:
+            logger.warning(f"No order book data found for {symbol}")
+            return
+            
+        logger.debug(f"Inserting {len(orders_to_insert)} order book entries for {symbol}")
+        with engine.connect() as conn:
+
+            conn.execute(
+                sa.text("""
+                    INSERT INTO order_book (symbol, last_update_id, side, price, quantity)
+                    VALUES (:symbol, :last_update_id, :side, :price, :quantity)
+                """),
+                orders_to_insert,
+            )
+            conn.commit()
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to fetch order book for {symbol}", exc_info=e)
+    except SQLAlchemyError as e:
+        logger.error(f"Database error inserting order book for {symbol}", exc_info=e)
+    
+
 if __name__ == "__main__":
     for symbol in top_pairs:
         get_recent_trades(symbol)
         get_latest_prices(symbol)
+        get_orderbook(symbol)
