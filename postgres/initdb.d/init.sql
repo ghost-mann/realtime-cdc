@@ -55,5 +55,30 @@ CREATE TABLE IF NOT EXISTS public.ticker_stats (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Table 5: klines
+-- Stores the k-line (candlestick) data.
+-- A composite primary key on symbol and open_time ensures each candle is unique
+-- and allows for efficient upserting (INSERT ... ON CONFLICT).
+
+CREATE TABLE IF NOT EXISTS public.klines (
+    symbol VARCHAR(20) NOT NULL,
+    open_time TIMESTAMPTZ NOT NULL,
+    open NUMERIC NOT NULL,
+    high NUMERIC NOT NULL,
+    low NUMERIC NOT NULL,
+    close NUMERIC NOT NULL,
+    volume NUMERIC NOT NULL,
+    close_time TIMESTAMPTZ NOT NULL,
+    quote_asset_volume NUMERIC NOT NULL,
+    num_trades BIGINT NOT NULL,
+    taker_buy_base_volume NUMERIC NOT NULL,
+    taker_buy_quote_volume NUMERIC NOT NULL,
+    ingested_at TIMESTAMPTZ DEFAULT NOW(),
+    PRIMARY KEY (symbol, open_time)
+);
+
+-- An index to speed up queries fetching klines by their close time.
+CREATE INDEX IF NOT EXISTS idx_klines_symbol_close_time ON public.klines (symbol, close_time DESC);
+
 
 ALTER TABLE public.recent_trades REPLICA IDENTITY FULL; -- Recommended for Debezium to provide the "before" state of a row on UPDATE and DELETE events.

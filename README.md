@@ -16,7 +16,7 @@
 
 ### Deregister
 
-    curl -X DELETE http://localhost:8083/connectors/postgres-connector
+    curl -X DELETE http://localhost:8083/connectors/postgres-source
 
 ## cassandra sink
 
