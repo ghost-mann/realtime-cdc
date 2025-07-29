@@ -117,7 +117,59 @@ def get_orderbook(symbol, limit=20):
         logger.error(f"Database error inserting order book for {symbol}", exc_info=e)
     
 
-def get_ticker_stats_data(symbol, limit=20):
+def get_ticker_stats_data(symbol):
+    
+    url = f'{base_url}/api/v3/ticker/24hr'
+    try:
+        response = requests.get(url, params={'symbol':symbol})
+        response.raise_for_status()
+        stats_data = response.json()
+    
+        logger.debug(f"24hr Stats for {symbol}")
+        with engine.connect() as conn:
+            conn.execute(sa.text("""
+                INSERT INTO public.ticker_stats (
+                    symbol, price_change, price_change_percent, weighted_avg_price, prev_close_price, 
+                    last_price, last_qty, bid_price, bid_qty, ask_price, ask_qty, open_price, high_price, 
+                    low_price, volume, quote_volume, open_time, close_time, first_id, last_id, trade_count, updated_at
+                ) VALUES (
+                    :symbol, :priceChange, :priceChangePercent, :weightedAvgPrice, :prevClosePrice, 
+                    :lastPrice, :lastQty, :bidPrice, :bidQty, :askPrice, :askQty, :openPrice, :highPrice, 
+                    :lowPrice, :volume, :quoteVolume, to_timestamp(:openTime / 1000.0), 
+                    to_timestamp(:closeTime / 1000.0), :firstId, :lastId, :count, NOW()
+                )
+                ON CONFLICT (symbol) DO UPDATE SET
+                    price_change = EXCLUDED.price_change,
+                    price_change_percent = EXCLUDED.price_change_percent,
+                    weighted_avg_price = EXCLUDED.weighted_avg_price,
+                    prev_close_price = EXCLUDED.prev_close_price,
+                    last_price = EXCLUDED.last_price,
+                    last_qty = EXCLUDED.last_qty,
+                    bid_price = EXCLUDED.bid_price,
+                    bid_qty = EXCLUDED.bid_qty,
+                    ask_price = EXCLUDED.ask_price,
+                    ask_qty = EXCLUDED.ask_qty,
+                    open_price = EXCLUDED.open_price,
+                    high_price = EXCLUDED.high_price,
+                    low_price = EXCLUDED.low_price,
+                    volume = EXCLUDED.volume,
+                    quote_volume = EXCLUDED.quote_volume,
+                    open_time = EXCLUDED.open_time,
+                    close_time = EXCLUDED.close_time,
+                    first_id = EXCLUDED.first_id,
+                    last_id = EXCLUDED.last_id,
+                    trade_count = EXCLUDED.trade_count,
+                    updated_at = NOW();
+                """),
+                stats_data
+            )
+            conn.commit()
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to fetch ticker stats for {symbol}", exc_info=e)
+    except SQLAlchemyError as e:
+        logger.error(f"Database error inserting ticker stats for {symbol}", exc_info=e)
+    
     
 
 if __name__ == "__main__":
@@ -125,3 +177,4 @@ if __name__ == "__main__":
         get_recent_trades(symbol)
         get_latest_prices(symbol)
         get_orderbook(symbol)
+        get_ticker_stats_data(symbol)
