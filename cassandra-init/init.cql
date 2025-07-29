@@ -35,3 +35,28 @@ CREATE TABLE IF NOT EXISTS trades_keyspace.order_book (
     quantity DECIMAL
 );
 
+CREATE TABLE IF NOT EXISTS ticker_stats (
+    symbol TEXT PRIMARY KEY,
+    price_change DECIMAL,
+    price_change_percent DECIMAL,
+    weighted_avg_price DECIMAL,
+    prev_close_price DECIMAL,
+    last_price DECIMAL,
+    last_qty DECIMAL,
+    bid_price DECIMAL,
+    bid_qty DECIMAL,
+    ask_price DECIMAL,
+    ask_qty DECIMAL,
+    open_price DECIMAL,
+    high_price DECIMAL,
+    low_price DECIMAL,
+    volume DECIMAL,
+    quote_volume DECIMAL,
+    open_time TIMESTAMP,
+    close_time TIMESTAMP,
+    first_id BIGINT,
+    last_id BIGINT,
+    trade_count BIGINT,
+    updated_at TIMESTAMP
+);
+
