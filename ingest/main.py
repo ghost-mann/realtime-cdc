@@ -64,11 +64,7 @@ def get_recent_trades(symbol, limit=20):
         conn.commit()
 
 def get_orderbook(symbol, limit=20):
-    """
-    Fetches the order book for a symbol and inserts the bids and asks into the database.
     
-    Assumes a table named 'order_book' exists.
-    """
     url = f'{base_url}/api/v3/depth'
     try:
         response = requests.get(url, params={'symbol': symbol, 'limit': limit})
@@ -119,6 +115,9 @@ def get_orderbook(symbol, limit=20):
         logger.error(f"Failed to fetch order book for {symbol}", exc_info=e)
     except SQLAlchemyError as e:
         logger.error(f"Database error inserting order book for {symbol}", exc_info=e)
+    
+
+def get_ticker_stats_data(symbol, limit=20):
     
 
 if __name__ == "__main__":

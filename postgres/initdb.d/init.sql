@@ -29,5 +29,31 @@ CREATE TABLE IF NOT EXISTS public.order_book (
 );
 
 
+CREATE TABLE IF NOT EXISTS public.ticker_stats (
+    symbol VARCHAR(20) PRIMARY KEY,
+    price_change NUMERIC,
+    price_change_percent NUMERIC,
+    weighted_avg_price NUMERIC,
+    prev_close_price NUMERIC,
+    last_price NUMERIC,
+    last_qty NUMERIC,
+    bid_price NUMERIC,
+    bid_qty NUMERIC,
+    ask_price NUMERIC,
+    ask_qty NUMERIC,
+    open_price NUMERIC,
+    high_price NUMERIC,
+    low_price NUMERIC,
+    volume NUMERIC,
+    quote_volume NUMERIC,
+    open_time TIMESTAMPTZ,
+    close_time TIMESTAMPTZ,
+    first_id BIGINT,
+    last_id BIGINT,
+    trade_count BIGINT, -- Renamed from 'count' to avoid SQL keyword conflicts
+    -- Add a timestamp to know when the stats were last updated in our system
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 
 ALTER TABLE public.recent_trades REPLICA IDENTITY FULL; -- Recommended for Debezium to provide the "before" state of a row on UPDATE and DELETE events.
