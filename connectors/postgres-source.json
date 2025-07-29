@@ -10,7 +10,7 @@
     "database.server.name": "tradeserver",
     "topic.prefix": "trades",
     "plugin.name": "pgoutput",
-    "table.include.list": "public.latest_prices,public.recent_trades,public.order_book,public.ticker_stats",
+    "table.include.list": "public.latest_prices,public.recent_trades,public.order_book,public.ticker_stats,public.klines",
     "decimal.handling.mode": "double",
     "key.converter": "org.apache.kafka.connect.json.JsonConverter",
     "key.converter.schemas.enable": "false",
