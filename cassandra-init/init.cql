@@ -60,3 +60,20 @@ CREATE TABLE IF NOT EXISTS ticker_stats (
     updated_at TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS klines (
+    symbol TEXT,
+    open_time TIMESTAMP,
+    open DECIMAL,
+    high DECIMAL,
+    low DECIMAL,
+    close DECIMAL,
+    volume DECIMAL,
+    close_time TIMESTAMP,
+    quote_asset_volume DECIMAL,
+    num_trades BIGINT,
+    taker_buy_base_volume DECIMAL,
+    taker_buy_quote_volume DECIMAL,
+    ingested_at TIMESTAMP,
+    PRIMARY KEY (symbol, open_time)
+) WITH CLUSTERING ORDER BY (open_time DESC);
+

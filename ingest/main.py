@@ -170,7 +170,71 @@ def get_ticker_stats_data(symbol):
     except SQLAlchemyError as e:
         logger.error(f"Database error inserting ticker stats for {symbol}", exc_info=e)
     
+def get_klines(symbol, interval='15m'):
+    """
+    Fetches k-line/candlestick data and upserts it into the database without using pandas.
+    """
+    url = f'{base_url}/api/v3/klines'
     
+    # Define the column names in the order they appear in the Binance API response
+    kline_columns = [
+        "open_time", "open", "high", "low", "close", "volume",
+        "close_time", "quote_asset_volume", "num_trades",
+        "taker_buy_base_volume", "taker_buy_quote_volume", "ignore"
+    ]
+
+    try:
+        response = requests.get(url, params={'symbol': symbol, 'interval': interval})
+        response.raise_for_status()
+        kline_data_from_api = response.json()
+
+        klines_to_insert = []
+        # Each 'kline' in the response is a list of values
+        for kline_record in kline_data_from_api:
+            # Use zip to efficiently create a dictionary from the column names and the list of values
+            kline_dict = dict(zip(kline_columns, kline_record))
+            # Add the symbol to the dictionary, as it's not in the API's inner list
+            kline_dict['symbol'] = symbol
+            klines_to_insert.append(kline_dict)
+
+        if not klines_to_insert:
+            logger.warning(f"No k-line data found for {symbol} with interval {interval}")
+            return
+
+        logger.debug(f"Upserting {len(klines_to_insert)} k-lines for {symbol}")
+        with engine.connect() as conn:
+            conn.execute(
+                sa.text("""
+                    INSERT INTO public.klines (
+                        symbol, open_time, open, high, low, close, volume,
+                        close_time, quote_asset_volume, num_trades,
+                        taker_buy_base_volume, taker_buy_quote_volume
+                    ) VALUES (
+                        :symbol, to_timestamp(:open_time / 1000.0), :open, :high, :low, :close, :volume,
+                        to_timestamp(:close_time / 1000.0), :quote_asset_volume, :num_trades,
+                        :taker_buy_base_volume, :taker_buy_quote_volume
+                    )
+                    ON CONFLICT (symbol, open_time) DO UPDATE SET
+                        open = EXCLUDED.open,
+                        high = EXCLUDED.high,
+                        low = EXCLUDED.low,
+                        close = EXCLUDED.close,
+                        volume = EXCLUDED.volume,
+                        close_time = EXCLUDED.close_time,
+                        quote_asset_volume = EXCLUDED.quote_asset_volume,
+                        num_trades = EXCLUDED.num_trades,
+                        taker_buy_base_volume = EXCLUDED.taker_buy_base_volume,
+                        taker_buy_quote_volume = EXCLUDED.taker_buy_quote_volume,
+                        ingested_at = NOW();
+                """),
+                klines_to_insert  # Pass the entire list of dictionaries for a bulk operation
+            )
+            conn.commit()
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to fetch k-lines for {symbol}", exc_info=e)
+    except SQLAlchemyError as e:
+        logger.error(f"Database error inserting k-lines for {symbol}", exc_info=e)
 
 if __name__ == "__main__":
     for symbol in top_pairs:
@@ -178,3 +242,4 @@ if __name__ == "__main__":
         get_latest_prices(symbol)
         get_orderbook(symbol)
         get_ticker_stats_data(symbol)
+        get_klines(symbol, interval='15m')
